@@ -12,7 +12,7 @@ OKE | DEVOPS | APM |API GATEWAY
 Juntamente com os recursos REDE e GESTÃO, tais como:
 VCN| SUB-REDES |GRUPOS DINÂMICOS |COMPARTIMENTOS
 
-Baixar repositório
+### Baixar repositório
 Como primeiro passo, devemos transferir este repositório do GitHub e para isso existem 2 opções:
 1. git clone https://github.com/joypassos/OCI-DEVOPS
 OU
@@ -20,7 +20,7 @@ OU
 
 Os códigos terraform já estão em uma pasta, então precisamos codificar um arquivo. Tf para provisionar um Oracle API Gateway junto com os outros recursos já criados nesta pasta.
 
-## Gerar um novo arquivo. Tf
+### Gerar um novo arquivo. Tf
 Adicione um novo arquivo de texto chamado 'apigateway.Tf' para criar um novo arquivo terraform. ou qualquer outro nome, mas com a extensão ". Tf" dentro da pasta que são os outros arquivos terraform.
 
 Exemplo:
@@ -37,11 +37,9 @@ recurso "oci_apigateway_gateway" "devops_gateway" {compartment_id = var.compartm
 
 Neste código, estamos afirmando que queremos criar um novo tipo de recurso 'oci_apigateway_gateway' e estamos definindo as informações necessárias para configurá-lo.
 
-Fonte deste código: Documentação do Terraform sobre API GATEWAY.
-
 Criado e preenchido neste arquivo . Tf, agora carrgue toda essa infraestrutura como código no OCI.
 
-## Carregar terraform no Oracle Resource Manager
+### Carregar terraform no Oracle Resource Manager
 
 * Acesse o menu sanduíche à esquerda
 
@@ -51,4 +49,14 @@ Criado e preenchido neste arquivo . Tf, agora carrgue toda essa infraestrutura c
 
 * Selecione e crie um novo STACK
 
-* Selecione como fonte a pasta do seu computador contendo os arquivos . Tf baixado, fazendo com que o Gerenciador de Recursos já preencha todos os campos.
+* Selecione como fonte a pasta do seu computador contendo os arquivos . Tf baixado, fazendo com que o Gerenciador de recursos já preencha todos os campos.
+
+* Clique em NEXT e podemos verificar as informações sobre os recursos que serão provisionados. Seleccione um compartimento como primeira opção e o resto não terá de ser alterado. Carregue no botão SEGUINTE.
+
+* Nesta nova tela irá pedir para verificar as informações e clicar em CRIAR
+
+* Criado o STACK clique em PLAN
+
+* Depois de completar o nosso plano, agora vamos voltar para a nossa pilha e clique em apply para realmente...
+
+É possível mostrar todos os logs de pilha criados.
