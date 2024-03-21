@@ -47,6 +47,27 @@ variable "artifact_repository_display_name" {
 }
 
 variable "container_repository_display_name" {
-  default     = "container_repository"
+  default     = "java-img"
   description = "Nome do repositório de container"
+}
+
+variable "stream_pool_name" {
+  default = "stream_pool"
+  description = "Stream Pool Name"
+}
+
+variable "stream_name"{
+  default = "workshop"
+}
+
+variable "stream_partitions"{
+  default = 1
+}
+
+variable "bucket_name"{
+  default = "workshop_bucket"
+}
+
+variable "application_display_name"{
+  default = "functionworkshop"
 }
