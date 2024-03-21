@@ -1,7 +1,8 @@
 ﻿# OCI-DEVOPS
 
  https://medium.com/p/9fdbb18a232d/edit
- Terraform em OCI
+ 
+## Terraform em OCI
 
 Implementação da Terraform no OCI
 Provisionar recursos dentro da OCI usando infraestrutura como código.
