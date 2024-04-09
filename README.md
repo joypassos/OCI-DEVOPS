@@ -26,7 +26,6 @@ Adicione um novo arquivo de texto chamado 'apigateway.Tf' para criar um novo arq
 Exemplo:
 
 Esse código é usado para indicar que queremos configurar um Oracle API Gateway.
-
 ¨¨bash
 recurso "oci_apigateway_gateway" "devops_gateway" {compartment_id = var.compartment_id
  endpoint_type = var.api_gateway_type
