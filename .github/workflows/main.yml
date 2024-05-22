@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     paths:
-      - 'path/to/your/terraform/file.tf'
+      - 'app/terraform/providers.tf'
   workflow_dispatch:
 
 jobs:
