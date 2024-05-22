@@ -1,0 +1,41 @@
+name: Test OCI Connection
+
+on:
+  push:
+    paths:
+      - '.github/workflows/oci-test.yml'
+  workflow_dispatch:
+
+jobs:
+  test-connection:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install OCI CLI
+        run: |
+          sudo pip install oci-cli
+
+      - name: Set up OCI credentials
+        env:
+          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+          OCI_CLI_KEY_FILE: ${{ secrets.OCI_CLI_KEY_FILE }}
+          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
+        run: |
+          mkdir -p ~/.oci
+          echo "${OCI_CLI_KEY_FILE}" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+          oci setup config --user $OCI_CLI_USER --fingerprint $OCI_CLI_FINGERPRINT --key-file ~/.oci/oci_api_key.pem --tenancy $OCI_CLI_TENANCY --region $OCI_CLI_REGION
+
+      - name: Test OCI Connection
+        run: oci iam compartment list --compartment-id $OCI_CLI_TENANCY
+        env:
+          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+          OCI_CLI_KEY_FILE: ${{ secrets.OCI_CLI_KEY_FILE }}
+          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
