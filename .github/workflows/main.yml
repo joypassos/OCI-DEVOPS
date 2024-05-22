@@ -1,4 +1,4 @@
-name: OCI Terraform Deploy
+name: CI
 
 on:
   push:
