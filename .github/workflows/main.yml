@@ -1,37 +1,28 @@
-name: Test OCI Connection
-
-on:
-  push:
-    paths:
-      - '.github/workflows/oci-test.yml'
-  workflow_dispatch:
-
 jobs:
-  test-connection:
+  my-instances:
     runs-on: ubuntu-latest
-
+    name: List the display name and shape of the instances in my compartment
+    env:
+      OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+      OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+      OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_FILE }}
+      OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Retrieve the OCID of a named compartment in tenancy
+        uses: oracle-actions/run-oci-cli-command@v1.2.0
+        id: find-compartment-id
+        with:
+          command: 'iam compartment list --compartment-id-in-subtree=true'
+          query: "data[?name=='testing'].id"
 
-      - name: Install OCI CLI
+      - name: Retrieve the display name and shape of the instances in my compartment
+        uses: oracle-actions/run-oci-cli-command@v1.2.0
+        id: find-instances
+        with:
+          command: 'compute instance list --compartment-id ${{ steps.find-compartment-id.outputs.raw_output }}'
+          query: 'data[*].{name: \"display-name\", shape: shape}'
+
+      - name: List the display name and shape of the instances in my compartment
         run: |
-          sudo pip install oci-cli
-
-      - name: Set up OCI credentials
-        env:
-          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
-          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-          OCI_CLI_KEY_FILE: ${{ secrets.OCI_CLI_KEY_FILE }}
-          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
-          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
-
-
-      - name: Test OCI Connection
-        run: oci iam compartment list --compartment-id $OCI_CLI_TENANCY
-        env:
-          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
-          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-          OCI_CLI_KEY_FILE: ${{ secrets.OCI_CLI_KEY_FILE }}
-          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
-          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
+          echo ${{ steps.find-instances.outputs.output }} | jq .
