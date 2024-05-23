@@ -26,18 +26,18 @@ jobs:
           OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
           OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
         run: |
-        mkdir -p ~/.oci
-        echo "${OCI_CLI_KEY_FILE}" > ~/.oci/oci_api_key.pem
-       chmod 600 ~/.oci/oci_api_key.pem
-       cat <<EOF > ~/.oci/config
-    [DEFAULT]
-    user=${OCI_CLI_USER}
-    fingerprint=${OCI_CLI_FINGERPRINT}
-    key_file=~/.oci/oci_api_key.pem
-    tenancy=${OCI_CLI_TENANCY}
-    region=${OCI_CLI_REGION}
-    EOF
-          
+          mkdir -p ~/.oci
+          echo "${OCI_CLI_KEY_FILE}" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+          cat <<EOF > ~/.oci/config
+          [DEFAULT]
+          user=${OCI_CLI_USER}
+          fingerprint=${OCI_CLI_FINGERPRINT}
+          key_file=~/.oci/oci_api_key.pem
+          tenancy=${OCI_CLI_TENANCY}
+          region=${OCI_CLI_REGION}
+          EOF
+
       - name: Test OCI Connection
         run: oci iam compartment list --compartment-id $OCI_CLI_TENANCY
         env:
