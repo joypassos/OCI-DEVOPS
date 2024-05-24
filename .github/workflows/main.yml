@@ -27,9 +27,13 @@ jobs:
         echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
         echo "tenancy=${{ secrets.OCI_TENANCY }}" >> ~/.oci/config
         echo "region=${{ secrets.OCI_REGION }}" >> ~/.oci/config
+        chmod 600 ~/.oci/config
+        oci setup repair-file-permissions --file ~/.oci/config
 
     - name: List OCI Compartments
-      run: oci iam compartment list --all
+      run: |
+        export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+        oci iam compartment list --compartment-id ${{ secrets.OCI_TENANCY }} --all
 
     - name: Clean up
       run: rm -f ~/.oci/oci_api_key.pem
