@@ -29,6 +29,10 @@ jobs:
         echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
         echo "tenancy=${{ secrets.OCI_TENANCY }}" >> ~/.oci/config
         echo "region=${{ secrets.OCI_REGION }}" >> ~/.oci/config
+        echo "pass_phrase=${{ secrets.OCI_PASSPHRASE }}" >> ~/.oci/config
+
+    - name: Add OCI CLI to PATH
+      run: echo 'export PATH=$PATH:/usr/local/bin/oci-cli/bin' >> $GITHUB_ENV
 
     - name: List OCI Compartments
       run: oci iam compartment list --all
