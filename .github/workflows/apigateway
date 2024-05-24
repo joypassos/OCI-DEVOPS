@@ -1,0 +1,59 @@
+name: Deploy Terraform
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install OCI CLI
+      run: sudo pip install oci-cli
+
+    - name: Install Terraform
+      run: |
+        sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+        sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+        sudo apt-get update && sudo apt-get install -y terraform
+
+    - name: Configure OCI CLI
+      run: |
+        mkdir -p ~/.oci
+        echo "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
+        chmod 600 ~/.oci/oci_api_key.pem
+        echo "[DEFAULT]" > ~/.oci/config
+        echo "user=${{ secrets.OCI_USER }}" >> ~/.oci/config
+        echo "fingerprint=${{ secrets.OCI_FINGERPRINT }}" >> ~/.oci/config
+        echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
+        echo "tenancy=${{ secrets.OCI_TENANCY }}" >> ~/.oci/config
+        echo "region=${{ secrets.OCI_REGION }}" >> ~/.oci/config
+        chmod 600 ~/.oci/config
+        oci setup repair-file-permissions --file ~/.oci/config
+
+    - name: Prepare Terraform Directory
+      run: |
+        mkdir -p ./temp-terraform
+        cp ./terraform/apigateway.tf ./temp-terraform/
+        cp -r ./terraform/modules ./temp-terraform/ # Se o arquivo depender de módulos
+
+    - name: Initialize Terraform
+      run: terraform init
+      working-directory: ./temp-terraform
+
+    - name: Plan Terraform for API Gateway
+      run: terraform plan -out=tfplan
+      working-directory: ./temp-terraform
+
+    - name: Apply Terraform for API Gateway
+      run: terraform apply -auto-approve tfplan
+      working-directory: ./temp-terraform
+
+    - name: Clean up
+      run: rm -f ~/.oci/oci_api_key.pem
