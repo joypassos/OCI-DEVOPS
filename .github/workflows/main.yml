@@ -2,47 +2,36 @@ name: Test OCI Connection
 
 on:
   push:
-    paths:
-      - '.github/workflows/oci-test.yml'
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   test-connection:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Install OCI CLI
-        run: |
-          sudo pip install oci-cli
+    - name: Set up OCI CLI
+      run: |
+        curl -LO https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
+        bash install.sh --accept-all-defaults
 
-      - name: Set up OCI credentials
-        env:
-          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
-          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-          OCI_CLI_KEY_FILE: ${{ secrets.OCI_CLI_KEY_FILE }}
-          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
-          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
-        run: |
-          mkdir -p ~/.oci
-          echo "${OCI_CLI_KEY_FILE}" > ~/.oci/oci_api_key.pem
-          chmod 600 ~/.oci/oci_api_key.pem
-          cat <<EOF > ~/.oci/config
-          [DEFAULT]
-          user=${OCI_CLI_USER}
-          fingerprint=${OCI_CLI_FINGERPRINT}
-          key_file=~/.oci/oci_api_key.pem
-          tenancy=${OCI_CLI_TENANCY}
-          region=${OCI_CLI_REGION}
-          EOF
+    - name: Configure OCI CLI
+      run: |
+        mkdir -p ~/.oci
+        echo "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
+        chmod 600 ~/.oci/oci_api_key.pem
+        echo "[DEFAULT]" > ~/.oci/config
+        echo "user=${{ secrets.OCI_USER }}" >> ~/.oci/config
+        echo "fingerprint=${{ secrets.OCI_FINGERPRINT }}" >> ~/.oci/config
+        echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
+        echo "tenancy=${{ secrets.OCI_TENANCY }}" >> ~/.oci/config
+        echo "region=${{ secrets.OCI_REGION }}" >> ~/.oci/config
 
-      - name: Test OCI Connection
-        run: oci iam compartment list --compartment-id $OCI_CLI_TENANCY
-        env:
-          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
-          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-          OCI_CLI_KEY_FILE: ${{ secrets.OCI_CLI_KEY_FILE }}
-          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
-          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
+    - name: List OCI Compartments
+      run: oci iam compartment list --all
+
+    - name: Clean up
+      run: rm -f ~/.oci/oci_api_key.pem
